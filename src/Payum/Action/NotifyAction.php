@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Vinium\SyliusUp2PayPlugin\Payum\Action;
+namespace Vinium\SyliusPayumUp2PayPlugin\Payum\Action;
 
-use Vinium\SyliusUp2PayPlugin\Payum\Bridge\EtransactionsBridgeInterface;
+use Vinium\SyliusPayumUp2PayPlugin\Payum\Bridge\EtransactionsBridgeInterface;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
 use Payum\Core\Exception\RequestNotSupportedException;

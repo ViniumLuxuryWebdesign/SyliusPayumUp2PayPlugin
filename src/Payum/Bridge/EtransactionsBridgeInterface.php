@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Vinium\SyliusUp2PayPlugin\Payum\Bridge;
+namespace Vinium\SyliusPayumUp2PayPlugin\Payum\Bridge;
 
-use Vinium\SyliusUp2PayPlugin\Legacy\Etransactions;
+use Vinium\SyliusPayumUp2PayPlugin\Legacy\Etransactions;
 
 interface EtransactionsBridgeInterface
 {

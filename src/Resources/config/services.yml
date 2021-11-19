@@ -1,15 +1,15 @@
 services:
-    Vinium\SyliusUp2PayPlugin\Form\Type\Up2PayGatewayConfigurationType:
+    Vinium\SyliusPayumUp2PayPlugin\Form\Type\Up2PayGatewayConfigurationType:
         tags:
             - { name: sylius.gateway_configuration_type, type: up2pay, label: 'Up2Pay' }
             - { name: form.type }
     vinium.up2pay.payment.factory:
         class: Payum\Core\Bridge\Symfony\Builder\GatewayFactoryBuilder
-        arguments: [ Vinium\SyliusUp2PayPlugin\Payum\Up2PayGatewayFactory ]
+        arguments: [ Vinium\SyliusPayumUp2PayPlugin\Payum\Up2PayGatewayFactory ]
         tags:
             - { name: payum.gateway_factory_builder, factory: up2pay }
     #actions
-    Vinium\SyliusUp2PayPlugin\Payum\Action\CaptureAction:
+    Vinium\SyliusPayumUp2PayPlugin\Payum\Action\CaptureAction:
         public: true
         arguments:
             - '@payum'
@@ -18,14 +18,14 @@ services:
             - '@request_stack'
         tags:
             - { name: payum.action, factory: up2pay, alias: payum.action.capture }
-    Vinium\SyliusUp2PayPlugin\Payum\Action\NotifyAction:
+    Vinium\SyliusPayumUp2PayPlugin\Payum\Action\NotifyAction:
         public: true
         arguments:
             - '@vinium.up2pay.payment.bridge'
             - '@sm.factory'
         tags:
             - { name: payum.action, factory: up2pay, alias: payum.action.notify }
-    Vinium\SyliusUp2PayPlugin\Payum\Action\StatusAction:
+    Vinium\SyliusPayumUp2PayPlugin\Payum\Action\StatusAction:
         public: true
         arguments:
             - '@request_stack'
@@ -33,12 +33,12 @@ services:
             - { name: payum.action, factory: up2pay, alias: payum.action.status }
     #bridge Etransactions
     vinium.up2pay.payment.bridge:
-        class: Vinium\SyliusUp2PayPlugin\Payum\Bridge\EtransactionsBridge
+        class: Vinium\SyliusPayumUp2PayPlugin\Payum\Bridge\EtransactionsBridge
         public: true
         arguments:
             - '@request_stack'
     #controller
-    Vinium\SyliusUp2PayPlugin\Controller\Up2PayReturnController:
+    Vinium\SyliusPayumUp2PayPlugin\Controller\Up2PayReturnController:
         public: true
         autowire: true
         tags: [ 'controller.service_arguments' ]

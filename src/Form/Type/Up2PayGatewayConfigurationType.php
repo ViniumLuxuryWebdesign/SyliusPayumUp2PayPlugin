@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Vinium\SyliusUp2PayPlugin\Form\Type;
+namespace Vinium\SyliusPayumUp2PayPlugin\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -19,40 +19,40 @@ final class Up2PayGatewayConfigurationType extends AbstractType
     {
         $builder
             ->add('sandbox', CheckboxType::class, [
-                'label' => 'vinium.up2pay.sandbox'
+                'label' => 'vinium_payum_up2pay_plugin.sandbox'
             ])
             ->add('hmac', TextType::class, [
-                'label' => 'vinium.up2pay.hmac',
+                'label' => 'vinium_payum_up2pay_plugin.hmac',
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'vinium.up2pay.not_blank',
+                        'message' => 'vinium_payum_up2pay_plugin.not_blank',
                         'groups' => ['sylius']
                     ])
                 ],
             ])
             ->add('identifiant', TextType::class, [
-                'label' => 'vinium.up2pay.identifiant',
+                'label' => 'vinium_payum_up2pay_plugin.identifiant',
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'vinium.up2pay.identifiant.not_blank',
+                        'message' => 'vinium_payum_up2pay_plugin.identifiant.not_blank',
                         'groups' => ['sylius']
                     ])
                 ],
             ])
             ->add('site', TextType::class, [
-                'label' => 'vinium.up2pay.site',
+                'label' => 'vinium_payum_up2pay_plugin.site',
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'vinium.up2pay.site.not_blank',
+                        'message' => 'vinium_payum_up2pay_plugin.site.not_blank',
                         'groups' => ['sylius']
                     ])
                 ],
             ])
             ->add('rang', TextType::class, [
-                'label' => 'vinium.up2pay.rang',
+                'label' => 'vinium_payum_up2pay_plugin.rang',
                 'constraints' => [
                     new NotBlank([
-                        'message' => 'vinium.up2pay.rang.not_blank',
+                        'message' => 'vinium_payum_up2pay_plugin.rang.not_blank',
                         'groups' => ['sylius']
                     ])
                 ],

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Vinium\SyliusUp2PayPlugin\Payum;
+namespace Vinium\SyliusPayumUp2PayPlugin\Payum;
 
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\GatewayFactory;
-use Vinium\SyliusUp2PayPlugin\Payum\Action\ConvertPaymentAction;
+use Vinium\SyliusPayumUp2PayPlugin\Payum\Action\ConvertPaymentAction;
 
 class Up2PayGatewayFactory extends GatewayFactory
 {

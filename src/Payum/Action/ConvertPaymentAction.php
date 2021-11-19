@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Vinium\SyliusUp2PayPlugin\Payum\Action;
+namespace Vinium\SyliusPayumUp2PayPlugin\Payum\Action;
 
 use Payum\Core\GatewayAwareInterface;
 use Payum\Core\GatewayAwareTrait;

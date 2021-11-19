@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Vinium\SyliusUp2PayPlugin\Legacy;
+namespace Vinium\SyliusPayumUp2PayPlugin\Legacy;
 
 interface PayBoxReturnParams {
 

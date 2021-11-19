@@ -1,10 +1,12 @@
 {
-    "name": "vinium/sylius-up2pay-plugin",
+    "name": "vinium/sylius-payum-up2pay-plugin",
     "type": "sylius-plugin",
     "description": "Up2Pay Gateway",
     "keywords": [
         "sylius",
-        "sylius-plugin"
+        "sylius-plugin",
+        "vinium",
+        "up2pay"
     ],
     "authors": [
         {
@@ -58,8 +60,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Vinium\\SyliusUp2PayPlugin\\": "src/",
-            "Tests\\Vinium\\SyliusUp2PayPlugin\\": "tests/"
+            "Vinium\\SyliusPayumUp2PayPlugin\\": "src/",
+            "Tests\\Vinium\\SyliusPayumUp2PayPlugin\\": "tests/"
         }
     },
     "autoload-dev": {

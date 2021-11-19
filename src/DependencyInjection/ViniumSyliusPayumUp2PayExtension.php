@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Vinium\SyliusUp2PayPlugin\DependencyInjection;
+namespace Vinium\SyliusPayumUp2PayPlugin\DependencyInjection;
 
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\FileLocator;
@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
-final class ViniumSyliusUp2PayExtension extends Extension
+final class ViniumSyliusPayumUp2PayExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container): void
     {

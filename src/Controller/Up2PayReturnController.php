@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Vinium\SyliusUp2PayPlugin\Controller;
+namespace Vinium\SyliusPayumUp2PayPlugin\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
 use SM\Factory\FactoryInterface;

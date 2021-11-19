@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Vinium\SyliusUp2PayPlugin\Payum\Action;
+namespace Vinium\SyliusPayumUp2PayPlugin\Payum\Action;
 
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
-use Vinium\SyliusUp2PayPlugin\Legacy\SimplePayment;
-use Vinium\SyliusUp2PayPlugin\Payum\Bridge\EtransactionsBridgeInterface;
+use Vinium\SyliusPayumUp2PayPlugin\Legacy\SimplePayment;
+use Vinium\SyliusPayumUp2PayPlugin\Payum\Bridge\EtransactionsBridgeInterface;
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\ApiAwareInterface;
 use Payum\Core\Bridge\Spl\ArrayObject;
@@ -101,7 +101,7 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface
         $sandbox = $this->api['sandbox'];
         $currencyCode = $payment->getCurrencyCode();
         $automaticResponseUrl = $notifyToken->getTargetUrl();
-        $cancelUrl = $this->router->generate('vinium_sylius_up2pay_cancel', ['orderToken' => $order->getTokenValue(), '_locale' => $requestCurrent->getLocale()], UrlGeneratorInterface::ABSOLUTE_URL);
+        $cancelUrl = $this->router->generate('vinium_sylius_payum_up2pay_plugin_cancel', ['orderToken' => $order->getTokenValue(), '_locale' => $requestCurrent->getLocale()], UrlGeneratorInterface::ABSOLUTE_URL);
         $successUrl = $token->getAfterUrl();
         $customerEmail = $order->getCustomer()->getEmail();
         $amount = $payment->getAmount();

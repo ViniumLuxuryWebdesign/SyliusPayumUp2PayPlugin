@@ -13,20 +13,20 @@
 
 1. Install plugin
 ```
-   composer require vinium/sylius-up2pay-plugin
+   composer require vinium/sylius-payum-up2pay-plugin
 ```
 
 2. Add bundle on bundles.php (if autorecipe is not used)
 
     ```php
-    Vinium\SyliusExtendedUserPlugin\ViniumSyliusUp2PayPlugin::class => ['all' => true]
+    Vinium\SyliusPayumUp2PayPlugin\ViniumSyliusPayumUp2PayPlugin::class => ['all' => true],
     ```
 
 3. Add Routing.Edit config/routes.yaml and add following values
 
 ```yaml
-vinium_sylius_up2pay:
-    resource: "@ViniumSyliusUp2PayPlugin/Resources/config/routing.yaml"
+vinium_sylius_payum_up2pay:
+    resource: "@ViniumSyliusPayumUp2PayPlugin/Resources/config/routing.yaml"
  ```
 
 ## Documentation Up2Pay officielle

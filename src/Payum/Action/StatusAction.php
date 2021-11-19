@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Vinium\SyliusUp2PayPlugin\Payum\Action;
+namespace Vinium\SyliusPayumUp2PayPlugin\Payum\Action;
 
 use Payum\Core\Action\ActionInterface;
 use Payum\Core\Request\GetStatusInterface;
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Vinium\SyliusUp2PayPlugin\Legacy\Etransactions;
+use Vinium\SyliusPayumUp2PayPlugin\Legacy\Etransactions;
 
 final class StatusAction implements ActionInterface
 {
