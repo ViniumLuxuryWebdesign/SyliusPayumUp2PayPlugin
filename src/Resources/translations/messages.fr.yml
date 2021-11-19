@@ -1,0 +1,8 @@
+vinium:
+    up2pay:
+        hmac: Hmac
+        identifiant: Identifiant
+        gateway_label: Up2Pay Etransactions
+        sandbox: Mode test?
+        rang: Numéro de rang
+        site: Numéro de site

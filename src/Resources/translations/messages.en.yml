@@ -1,0 +1,8 @@
+vinium:
+    up2pay:
+        hmac: Hmac
+        identifiant: Identifier
+        gateway_label: Up2Pay Etransactions
+        sandbox: Sandbox ?
+        rang: Rank number
+        site: Site number

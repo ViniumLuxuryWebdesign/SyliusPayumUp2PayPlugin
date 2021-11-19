@@ -1,0 +1,5 @@
+vinium_sylius_up2pay_cancel:
+    path: /{_locale}/up2pay/cancel/{orderToken}
+    methods: ['GET']
+    defaults:
+        _controller: 'Vinium\SyliusUp2PayPlugin\Controller\Up2PayReturnController::cancelAction'

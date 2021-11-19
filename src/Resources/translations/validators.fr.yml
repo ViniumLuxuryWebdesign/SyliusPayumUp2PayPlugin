@@ -1,0 +1,12 @@
+vinium:
+    up2pay:
+        identifiant:
+            not_blank: Entrez l'identifiant du marchand.
+        hmac:
+            not_blank: Veuillez entrer le code Hmac.
+        channel:
+            currency: La seule devise autorisée est EUR.
+        site:
+            not_blank: Entrez le numéro de site du marchand.
+        rang:
+            not_blank: Entrez le numéro de rang du marchand.
