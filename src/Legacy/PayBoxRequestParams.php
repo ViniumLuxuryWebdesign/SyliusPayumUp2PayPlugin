@@ -95,4 +95,13 @@ interface PayBoxRequestParams {
      * Paybox responsive param.
      */
     const PBX_SOURCE = "PBX_SOURCE";
+
+    /**
+     * Paybox billing data
+     */
+    const PBX_BILLING = "PBX_BILLING";
+
+    /**
+     * Paybox shopping cart data  */
+    const PBX_SHOPPINGCART = "PBX_SHOPPINGCART";
 }

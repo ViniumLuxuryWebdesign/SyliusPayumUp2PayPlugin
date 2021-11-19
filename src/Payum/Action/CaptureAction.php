@@ -105,6 +105,9 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface
         $successUrl = $token->getAfterUrl();
         $customerEmail = $order->getCustomer()->getEmail();
         $amount = $payment->getAmount();
+        $shoppingCart = $order->countItems();
+        $billingData = $order;
+        $locale = $order->getLocaleCode();
         $transactionReference = "etransactionsWS".uniqid($payment->getOrder()->getNumber());
         //set transaction reference
         $details['transactionReference'] = $transactionReference;
@@ -121,7 +124,10 @@ final class CaptureAction implements ActionInterface, ApiAwareInterface
             $customerEmail,
             $automaticResponseUrl,
             $successUrl,
-            $cancelUrl
+            $cancelUrl,
+            $shoppingCart,
+            $billingData,
+            $locale
         );
         try {
             $simplePayment->execute();

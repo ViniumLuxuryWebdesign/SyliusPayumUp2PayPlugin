@@ -80,6 +80,9 @@ final class SimplePayment
      * @param $automaticResponseUrl
      * @param $successUrl
      * @param $cancelUrl
+     * @param $shoppingCart
+     * @param $billingData
+     * @param $locale
      */
     public function __construct(
         Etransactions $etransactions,
@@ -93,7 +96,10 @@ final class SimplePayment
         $customerEmail,
         $automaticResponseUrl,
         $successUrl,
-        $cancelUrl
+        $cancelUrl,
+        $shoppingCart,
+        $billingData,
+        $locale
     )
     {
         $this->automaticResponseUrl = $automaticResponseUrl;
@@ -108,6 +114,9 @@ final class SimplePayment
         $this->amount = $amount;
         $this->currency = $currency;
         $this->customerEmail = $customerEmail;
+        $this->shoppingCart = $shoppingCart;
+        $this->billingData = $billingData;
+        $this->locale = $locale;
     }
 
     public function execute()
@@ -130,6 +139,9 @@ final class SimplePayment
         $this->etransactions->setAutomaticResponseUrl($this->automaticResponseUrl);
         $this->etransactions->setSuccessReturnUrl($this->successUrl);
         $this->etransactions->setCancelReturnUrl($this->cancelUrl);
+        $this->etransactions->setShoppingCart($this->shoppingCart);
+        $this->etransactions->setBillingData($this->billingData);
+        $this->etransactions->setLocale($this->locale);
 
         $this->etransactions->validate();
 
