@@ -33,3 +33,7 @@ Numéro : 1111222233334444
 Date de validité : 12/25
 
 CCV : 123
+
+## Réalisation de test
+
+https://static.ca-moncommerce.com/documents/e-transactions_mise-en_place_des_tests_v0.1.pdf

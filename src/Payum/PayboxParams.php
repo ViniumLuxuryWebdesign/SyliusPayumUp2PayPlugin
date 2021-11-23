@@ -43,6 +43,7 @@ class PayboxParams
     const PBX_SOURCE = 'PBX_SOURCE';
     const PBX_BILLING = "PBX_BILLING";
     const PBX_SHOPPINGCART = "PBX_SHOPPINGCART";
+    const PBX_ERRORCODETEST = "PBX_ERRORCODETEST";
 
     private $currencies = array(
         'EUR' => '978', 'USD' => '840', 'CHF' => '756', 'GBP' => '826',
