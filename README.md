@@ -22,13 +22,6 @@
     Vinium\SyliusPayumUp2PayPlugin\ViniumSyliusPayumUp2PayPlugin::class => ['all' => true],
     ```
 
-3. Add Routing.Edit config/routes.yaml and add following values
-
-```yaml
-vinium_sylius_payum_up2pay:
-    resource: "@ViniumSyliusPayumUp2PayPlugin/Resources/config/routing.yaml"
- ```
-
 ## Documentation Up2Pay officielle
 
 https://www.ca-moncommerce.com/espace-client-mon-commerce/up2pay-e-transactions/ma-documentation/

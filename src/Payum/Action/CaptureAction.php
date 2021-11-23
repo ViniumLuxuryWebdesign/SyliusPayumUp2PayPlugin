@@ -4,160 +4,54 @@ declare(strict_types=1);
 
 namespace Vinium\SyliusPayumUp2PayPlugin\Payum\Action;
 
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RouterInterface;
-use Vinium\SyliusPayumUp2PayPlugin\Legacy\SimplePayment;
-use Vinium\SyliusPayumUp2PayPlugin\Payum\Bridge\EtransactionsBridgeInterface;
+use Vinium\SyliusPayumUp2PayPlugin\Payum\Api;
 use Payum\Core\Action\ActionInterface;
-use Payum\Core\ApiAwareInterface;
 use Payum\Core\Bridge\Spl\ArrayObject;
-use Payum\Core\Exception\RequestNotSupportedException;
-use Payum\Core\Exception\UnsupportedApiException;
+use Payum\Core\ApiAwareTrait;
+use Payum\Core\ApiAwareInterface;
+use Payum\Core\GatewayAwareTrait;
+use Payum\Core\GatewayAwareInterface;
 use Payum\Core\Request\Capture;
-use Payum\Core\Security\TokenInterface;
-use Sylius\Component\Core\Model\PaymentInterface;
-use Webmozart\Assert\Assert;
-use Payum\Core\Payum;
-use Sylius\Component\Core\Model\OrderInterface;
+use Payum\Core\Exception\RequestNotSupportedException;
+use Payum\Core\Request\GetHttpRequest;
 
-final class CaptureAction implements ActionInterface, ApiAwareInterface
+class CaptureAction implements GatewayAwareInterface, ApiAwareInterface, ActionInterface
 {
-    private $api = [];
-    /**
-     * @var Payum
-     */
-    private $payum;
-    /**
-     * @var EtransactionsBridgeInterface
-     */
-    private $etransactionsBridge;
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-    /**
-     * @var RequestStack
-     */
-    private $requestStack;
+    use GatewayAwareTrait;
+    use ApiAwareTrait;
 
-    /**
-     * @param Payum $payum
-     * @param EtransactionsBridgeInterface $etransactionsBridge
-     */
-    public function __construct(
-        Payum $payum,
-        EtransactionsBridgeInterface $etransactionsBridge,
-        RouterInterface $router,
-        RequestStack $requestStack
-    )
+    public function __construct()
     {
-        $this->etransactionsBridge = $etransactionsBridge;
-        $this->payum = $payum;
-        $this->router = $router;
-        $this->requestStack = $requestStack;
+        $this->apiClass = Api::class;
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function setApi($api)
-    {
-        if (!\is_array($api)) {
-            throw new UnsupportedApiException('Not supported.');
-        }
-
-        $this->api = $api;
-    }
-
-    /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      *
      * @param Capture $request
      */
     public function execute($request)
     {
         RequestNotSupportedException::assertSupports($this, $request);
-        $details = ArrayObject::ensureArrayObject($request->getModel());
-        //if already exist return
-        if (!empty($details['transactionReference'])) {
-            return;
-        }
-        /** @var PaymentInterface $payment */
-        $payment = $request->getFirstModel();
-        Assert::isInstanceOf($payment, PaymentInterface::class);
-        /** @var OrderInterface $order */
-        $order = $payment->getOrder();
-        /** @var TokenInterface $token */
-        $token = $request->getToken();
-        $requestCurrent = $this->requestStack->getCurrentRequest();
-        //generate token fort notifyAction
-        $notifyToken = $this->createNotifyToken($token->getGatewayName(), $token->getDetails());
-        $hmac = $this->api['hmac'];
-        $etransactions = $this->etransactionsBridge->createEtransactions($hmac);
-        $identifiant = $this->api['identifiant'];
-        $rang = $this->api['rang'];
-        $site = $this->api['site'];
-        $sandbox = $this->api['sandbox'];
-        $currencyCode = $payment->getCurrencyCode();
-        $automaticResponseUrl = $notifyToken->getTargetUrl();
-        $cancelUrl = $this->router->generate('vinium_sylius_payum_up2pay_plugin_cancel', ['orderToken' => $order->getTokenValue(), '_locale' => $requestCurrent->getLocale()], UrlGeneratorInterface::ABSOLUTE_URL);
-        $successUrl = $token->getAfterUrl();
-        $customerEmail = $order->getCustomer()->getEmail();
-        $amount = $payment->getAmount();
-        $shoppingCart = $order->countItems();
-        $billingData = $order;
-        $locale = $order->getLocaleCode();
-        $transactionReference = "etransactionsWS".uniqid($payment->getOrder()->getNumber());
-        //set transaction reference
-        $details['transactionReference'] = $transactionReference;
-        $request->setModel($details);
-        $simplePayment = new SimplePayment(
-            $etransactions,
-            $identifiant,
-            $rang,
-            $site,
-            $sandbox,
-            $amount,
-            $currencyCode,
-            $transactionReference,
-            $customerEmail,
-            $automaticResponseUrl,
-            $successUrl,
-            $cancelUrl,
-            $shoppingCart,
-            $billingData,
-            $locale
-        );
-        try {
-            $simplePayment->execute();
-        } catch (\Exception $e) {
-            $this->payum->getHttpRequestVerifier()->invalidate($token);
-            throw $e;
+        $model = ArrayObject::ensureArrayObject($request->getModel());
+        //get current request
+        $this->gateway->execute($httpRequest = new GetHttpRequest());
+        if (isset($httpRequest->query['Reponse'])) {
+            $model->replace($httpRequest->query);
+            $model['verifyUri'] = $httpRequest->uri;
+        } else {
+            $this->api->doPayment((array) $model);
         }
     }
 
     /**
-     * @param string $gatewayName
-     * @param object $model
-     *
-     * @return TokenInterface
-     */
-    private function createNotifyToken($gatewayName, $model)
-    {
-        return $this->payum->getTokenFactory()->createNotifyToken(
-            $gatewayName,
-            $model
-        );
-    }
-
-    /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function supports($request)
     {
         return
             $request instanceof Capture &&
-            $request->getModel() instanceof \ArrayAccess;
+            $request->getModel() instanceof \ArrayAccess
+            ;
     }
 }

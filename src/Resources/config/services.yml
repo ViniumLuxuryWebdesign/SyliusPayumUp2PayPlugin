@@ -8,37 +8,12 @@ services:
         arguments: [ Vinium\SyliusPayumUp2PayPlugin\Payum\Up2PayGatewayFactory ]
         tags:
             - { name: payum.gateway_factory_builder, factory: up2pay }
-    #actions
-    Vinium\SyliusPayumUp2PayPlugin\Payum\Action\CaptureAction:
+    Vinium\SyliusPayumUp2PayPlugin\Payum\Action\ConvertPaymentAction:
         public: true
         arguments:
-            - '@payum'
-            - '@vinium.up2pay.payment.bridge'
-            - '@router'
-            - '@request_stack'
+            - '@vinium.up2pay.payment.paybox_params'
         tags:
-            - { name: payum.action, factory: up2pay, alias: payum.action.capture }
-    Vinium\SyliusPayumUp2PayPlugin\Payum\Action\NotifyAction:
+            - { name: payum.action, factory: up2pay, alias: payum.action.convert_payment }
+    vinium.up2pay.payment.paybox_params:
+        class: Vinium\SyliusPayumUp2PayPlugin\Payum\PayboxParams
         public: true
-        arguments:
-            - '@vinium.up2pay.payment.bridge'
-            - '@sm.factory'
-        tags:
-            - { name: payum.action, factory: up2pay, alias: payum.action.notify }
-    Vinium\SyliusPayumUp2PayPlugin\Payum\Action\StatusAction:
-        public: true
-        arguments:
-            - '@request_stack'
-        tags:
-            - { name: payum.action, factory: up2pay, alias: payum.action.status }
-    #bridge Etransactions
-    vinium.up2pay.payment.bridge:
-        class: Vinium\SyliusPayumUp2PayPlugin\Payum\Bridge\EtransactionsBridge
-        public: true
-        arguments:
-            - '@request_stack'
-    #controller
-    Vinium\SyliusPayumUp2PayPlugin\Controller\Up2PayReturnController:
-        public: true
-        autowire: true
-        tags: [ 'controller.service_arguments' ]

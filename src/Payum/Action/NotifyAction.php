@@ -4,80 +4,47 @@ declare(strict_types=1);
 
 namespace Vinium\SyliusPayumUp2PayPlugin\Payum\Action;
 
-use Vinium\SyliusPayumUp2PayPlugin\Payum\Bridge\EtransactionsBridgeInterface;
 use Payum\Core\Action\ActionInterface;
-use Payum\Core\ApiAwareInterface;
+use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
-use Payum\Core\Exception\UnsupportedApiException;
-use Sylius\Component\Core\Model\PaymentInterface;
+use Payum\Core\GatewayAwareInterface;
+use Payum\Core\GatewayAwareTrait;
+use Payum\Core\Reply\HttpResponse;
+use Payum\Core\Request\GetHttpRequest;
 use Payum\Core\Request\Notify;
-use Sylius\Component\Payment\PaymentTransitions;
-use Webmozart\Assert\Assert;
-use SM\Factory\FactoryInterface;
+use Payum\Core\Security\GenericTokenFactoryAwareInterface;
+use Payum\Core\Security\GenericTokenFactoryAwareTrait;
 
-final class NotifyAction implements ActionInterface, ApiAwareInterface
+class NotifyAction implements ActionInterface, GatewayAwareInterface, GenericTokenFactoryAwareInterface
 {
-    private $api = [];
+    use GatewayAwareTrait;
+    use GenericTokenFactoryAwareTrait;
 
     /**
-     * @var EtransactionsBridgeInterface
-     */
-    private $etransactionsBridge;
-
-    /**
-     * @var FactoryInterface
-     */
-    private $stateMachineFactory;
-
-    /**
-     * @param EtransactionsBridgeInterface $etransactionsBridge
-     * @param FactoryInterface $stateMachineFactory
-     */
-    public function __construct(
-        EtransactionsBridgeInterface $etransactionsBridge,
-        FactoryInterface $stateMachineFactory
-    )
-    {
-        $this->etransactionsBridge = $etransactionsBridge;
-        $this->stateMachineFactory = $stateMachineFactory;
-    }
-
-    /**
-     * {@inheritDoc}
+     * {@inheritdoc}
+     *
+     * @param Notify $request
      */
     public function execute($request)
     {
-        /** @var $request Notify */
         RequestNotSupportedException::assertSupports($this, $request);
+        $details = ArrayObject::ensureArrayObject($request->getModel());
+        $this->gateway->execute($httpRequest = new GetHttpRequest());
+        $httpRequest->query['notify'] = true;
+        $details->replace($httpRequest->query);
+        $httpRequest->query['notify'] = false;
 
-        if ($this->etransactionsBridge->paymentVerification($this->api['hmac'])) {
-            /** @var PaymentInterface $payment */
-            $payment = $request->getFirstModel();
-            Assert::isInstanceOf($payment, PaymentInterface::class);
-            $this->stateMachineFactory->get($payment, PaymentTransitions::GRAPH)->apply(PaymentTransitions::TRANSITION_COMPLETE);;
-        }
+        throw new HttpResponse('OK', 200);
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public function setApi($api)
-    {
-        if (!is_array($api)) {
-            throw new UnsupportedApiException('Not supported.');
-        }
-
-        $this->api = $api;
-    }
-
-    /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function supports($request)
     {
         return
             $request instanceof Notify &&
-            $request->getModel() instanceof \ArrayObject
-        ;
+            $request->getModel() instanceof \ArrayAccess
+            ;
     }
 }

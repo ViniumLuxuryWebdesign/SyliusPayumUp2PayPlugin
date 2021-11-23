@@ -18,6 +18,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.3",
+        "ext-openssl": "*",
         "sylius/sylius": "^1.8",
         "league/iso3166": "^4.0"
     },
