@@ -37,3 +37,9 @@ CCV : 123
 ## Réalisation de test
 
 https://static.ca-moncommerce.com/documents/e-transactions_mise-en_place_des_tests_v0.1.pdf
+
+# Env variable for local capture if IPN cannot be call
+
+```
+VINIUM_SYLIUS_PAYUM_UP2PAY_PLUGIN_LOCAL_CAPTURE=1
+```

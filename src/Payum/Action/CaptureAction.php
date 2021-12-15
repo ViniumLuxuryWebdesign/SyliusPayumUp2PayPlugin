@@ -38,7 +38,6 @@ class CaptureAction implements GatewayAwareInterface, ApiAwareInterface, ActionI
         $this->gateway->execute($httpRequest = new GetHttpRequest());
         if (isset($httpRequest->query['Reponse'])) {
             $model->replace($httpRequest->query);
-            $model['verifyUri'] = $httpRequest->uri;
         } else {
             $this->api->doPayment((array) $model);
         }

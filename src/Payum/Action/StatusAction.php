@@ -34,7 +34,7 @@ class StatusAction implements ActionInterface, GatewayAwareInterface
     {
         RequestNotSupportedException::assertSupports($this, $request);
         $model = ArrayObject::ensureArrayObject($request->getModel());
-        if (null === $model['Reponse']) {
+        if (empty($model['Reponse'])) {
             $request->markNew();
 
             return;
@@ -43,7 +43,6 @@ class StatusAction implements ActionInterface, GatewayAwareInterface
         if (isset($model['notify'])) {
             $request->setModel($request->getFirstModel());
             if (self::RESPONSE_SUCCESS === $model['Reponse']) {
-                //todo do verify signature if needed
                 $request->markCaptured();
             } elseif (self::isFailureErrorCode($model['Reponse'])) {
                 $request->markFailed();
@@ -64,10 +63,11 @@ class StatusAction implements ActionInterface, GatewayAwareInterface
                     // meaning the IPN didn't reach the capture endpoint before the user return to the shop.
                     // (when testing locally the IPN typically won't reach the endpoint)
                     if (self::RESPONSE_SUCCESS === $model['Reponse']) {
-                        //todo do verify signature if needed
-                        //$verify = $this->verifySignature($model['verifyUri'], $model['Signature']);
-                        //$request->markPending();
-                        $request->markCaptured();
+                        if (getenv('VINIUM_SYLIUS_PAYUM_UP2PAY_PLUGIN_LOCAL_CAPTURE')) {
+                            $request->markCaptured();
+                        } else {
+                            $request->markPending();
+                        }
                     } elseif (self::RESPONSE_PENDING_VALIDATION === $model['Reponse']) {
                         $request->markPending();
                     } elseif (self::isFailureErrorCode($model['Reponse'])) {
@@ -118,19 +118,4 @@ class StatusAction implements ActionInterface, GatewayAwareInterface
 
         return false;
     }
-    /*private function verifySignature($uri, $signature)
-    {
-        $keyFile = __DIR__.'/../../Resources/key/pubkey.pem';
-        $handle = fopen($keyFile, 'r');
-        if (!$handle) {
-            return false;
-        }
-        $contents = fread($handle, filesize($keyFile));
-        fclose($handle);
-        $key = openssl_pkey_get_public($contents);
-        $data = substr($uri, strrpos($uri, '?' ) + 1);
-        $sig = base64_decode(urldecode($signature));
-
-        return openssl_verify($data, $sig, $key);
-    }*/
 }
