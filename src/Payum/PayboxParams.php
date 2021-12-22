@@ -7,6 +7,7 @@ namespace Vinium\SyliusPayumUp2PayPlugin\Payum;
 use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Locale\Context\LocaleContextInterface;
 
 class PayboxParams
 {
@@ -53,6 +54,13 @@ class PayboxParams
         'DKK' => '208', 'KRW' => '410', 'SGD' => '702', 'XPF' => '953',
         'XOF' => '952'
     );
+
+    private LocaleContextInterface $localeContext;
+
+    public function __construct(LocaleContextInterface $localeContext)
+    {
+        $this->localeContext = $localeContext;
+    }
 
     public function convertCurrencyToCurrencyCode($currency)
     {
@@ -489,7 +497,7 @@ class PayboxParams
                 'ǜ' => 'u',
             ];
             // Used for locale-specific rules.
-            $locale = $this->getLocale();
+            $locale = $this->localeContext->getLocaleCode();
             if (in_array($locale, ['de_DE', 'de_DE_formal', 'de_CH', 'de_CH_informal', 'de_AT'], true)) {
                 $chars['Ä'] = 'Ae';
                 $chars['ä'] = 'ae';
