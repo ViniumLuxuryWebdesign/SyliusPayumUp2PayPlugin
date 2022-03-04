@@ -22,7 +22,7 @@ class ConvertPaymentAction implements ActionInterface, GatewayAwareInterface, Ge
     use GatewayAwareTrait;
     use GenericTokenFactoryAwareTrait;
 
-    private $payboxParams;
+    private PayboxParams $payboxParams;
 
     public function __construct(PayboxParams $payboxParams)
     {

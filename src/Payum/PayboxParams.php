@@ -46,7 +46,7 @@ class PayboxParams
     const PBX_SHOPPINGCART = "PBX_SHOPPINGCART";
     const PBX_ERRORCODETEST = "PBX_ERRORCODETEST";
 
-    private $currencies = array(
+    private array $currencies = array(
         'EUR' => '978', 'USD' => '840', 'CHF' => '756', 'GBP' => '826',
         'CAD' => '124', 'JPY' => '392', 'MXP' => '484', 'TRY' => '949',
         'AUD' => '036', 'NZD' => '554', 'NOK' => '578', 'BRC' => '986',

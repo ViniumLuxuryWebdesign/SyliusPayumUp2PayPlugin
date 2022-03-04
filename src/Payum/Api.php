@@ -11,22 +11,13 @@ use Payum\Core\Reply\HttpPostRedirect;
 
 class Api
 {
-    /**
-     * @var HttpClientInterface
-     */
-    protected $client;
+    protected HttpClientInterface $client;
 
-    /**
-     * @var MessageFactory
-     */
-    protected $messageFactory;
+    protected MessageFactory $messageFactory;
 
-    /**
-     * @var array
-     */
-    protected $options = [];
+    protected array $options = [];
 
-    private static $currencies = array(
+    private static array $currencies = array(
         'EUR' => '978', 'USD' => '840', 'CHF' => '756', 'GBP' => '826',
         'CAD' => '124', 'JPY' => '392', 'MXP' => '484', 'TRY' => '949',
         'AUD' => '036', 'NZD' => '554', 'NOK' => '578', 'BRC' => '986',
