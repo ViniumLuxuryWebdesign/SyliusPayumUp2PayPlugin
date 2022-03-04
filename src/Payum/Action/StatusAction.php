@@ -18,9 +18,15 @@ class StatusAction implements ActionInterface, GatewayAwareInterface
 
     const RESPONSE_SUCCESS = '00000';
     const RESPONSE_CANCELED = '00001';
+    const RESPONSE_FAILED_PLATFORM = '00003';
     const RESPONSE_FAILED_CVV = '00004';
     const RESPONSE_FAILED_VALIDITY = '00008';
+    const RESPONSE_FAILED_CREATE_SUBSCRIPTION = '00009';
     const RESPONSE_FAILED_CARD_UNAUTHORIZED = '00021';
+    const RESPONSE_FAILED_UNCOMPLIANT = '00029';
+    const RESPONSE_FAILED_TOOLONG = '00030';
+    const RESPONSE_FAILED_UNAUTHORIZED_COUNTRY = '00033';
+    const RESPONSE_FAILED_3DS_BLOCKED = '00040';
     const RESPONSE_FAILED_MIN = '00100';
     const RESPONSE_FAILED_MAX = '00199';
     const RESPONSE_PENDING_VALIDATION = '99999';
@@ -105,13 +111,19 @@ class StatusAction implements ActionInterface, GatewayAwareInterface
         ;
     }
 
-    protected static function isFailureErrorCode($errorCode)
+    protected static function isFailureErrorCode($errorCode): bool
     {
         if (
             self::RESPONSE_FAILED_MIN <= $errorCode && self::RESPONSE_FAILED_MAX >= $errorCode ||
             $errorCode === self::RESPONSE_FAILED_CVV ||
             $errorCode === self::RESPONSE_FAILED_VALIDITY ||
-            $errorCode === self::RESPONSE_FAILED_CARD_UNAUTHORIZED
+            $errorCode === self::RESPONSE_FAILED_CARD_UNAUTHORIZED ||
+            $errorCode === self::RESPONSE_FAILED_CREATE_SUBSCRIPTION ||
+            $errorCode === self::RESPONSE_FAILED_UNCOMPLIANT ||
+            $errorCode === self::RESPONSE_FAILED_3DS_BLOCKED ||
+            $errorCode === self::RESPONSE_FAILED_UNAUTHORIZED_COUNTRY ||
+            $errorCode === self::RESPONSE_FAILED_PLATFORM ||
+            $errorCode === self::RESPONSE_FAILED_TOOLONG
         ) {
             return true;
         }
