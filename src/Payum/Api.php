@@ -17,15 +17,6 @@ class Api
 
     protected array $options = [];
 
-    private static array $currencies = array(
-        'EUR' => '978', 'USD' => '840', 'CHF' => '756', 'GBP' => '826',
-        'CAD' => '124', 'JPY' => '392', 'MXP' => '484', 'TRY' => '949',
-        'AUD' => '036', 'NZD' => '554', 'NOK' => '578', 'BRC' => '986',
-        'ARP' => '032', 'KHR' => '116', 'TWD' => '901', 'SEK' => '752',
-        'DKK' => '208', 'KRW' => '410', 'SGD' => '702', 'XPF' => '953',
-        'XOF' => '952'
-    );
-
     /**
      * @param array               $options
      * @param HttpClientInterface $client
@@ -41,10 +32,10 @@ class Api
     }
 
     /**
+     * @param string method
      * @param array $fields
-     *
      */
-    protected function doRequest($method, array $fields)
+    protected function doRequest(string $method, array $fields)
     {
         $headers = [];
         $request = $this->messageFactory->createRequest($method, $this->getApiEndpoint(), $headers, http_build_query($fields));
@@ -57,6 +48,9 @@ class Api
         return $response;
     }
 
+    /**
+     * @param array $fields
+     */
     public function doPayment(array $fields)
     {
         $fields[PayboxParams::PBX_SITE] = $this->options['site'];
@@ -74,7 +68,7 @@ class Api
     /**
      * @return string
      */
-    protected function getApiEndpoint()
+    protected function getApiEndpoint(): string
     {
         return $this->options['sandbox'] ? PayboxParams::SERVER_TEST : PayboxParams::SERVER_PRODUCTION;
     }
@@ -85,7 +79,7 @@ class Api
      *
      * @return string
      */
-    private function computeHmac($hmac, $fields)
+    private function computeHmac(string $hmac, array $fields): string
     {
         // Si la clé est en ASCII, On la transforme en binaire
         $binKey = pack('H*', $hmac);
@@ -97,12 +91,11 @@ class Api
 
     /**
      * Makes an array of parameters become a querystring like string.
-     *
      * @param array $array
      *
      * @return string
      */
-    private function stringify(array $array)
+    private function stringify(array $array): string
     {
         $result = array();
         foreach ($array as $key => $value) {
@@ -115,7 +108,7 @@ class Api
     /**
      * @return array
      */
-    public function getOptions()
+    public function getOptions() :array
     {
         return $this->options;
     }
