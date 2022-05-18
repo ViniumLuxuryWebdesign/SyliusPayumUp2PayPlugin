@@ -72,13 +72,11 @@ class PayboxParams
 
     public function setBilling(OrderInterface $order)
     {
-        /** @var CustomerInterface $customer */
-        $customer = $order->getCustomer();
         /** @var AddressInterface $billingAddress */
         $billingAddress = $order->getBillingAddress();
-        $firstName = $this->formatTextValue($customer->getFirstName(), 'ANP', 30);
-        $lastName = $this->formatTextValue($customer->getLastName(), 'ANP', 30);
-        $addressLine1 = $this->formatTextValue($order->getBillingAddress()->getFullName(), 'ANS', 50);
+        $firstName = $this->formatTextValue($billingAddress->getFirstName(), 'ANP', 30);
+        $lastName = $this->formatTextValue($billingAddress->getLastName(), 'ANP', 30);
+        $addressLine1 = $this->formatTextValue($billingAddress->getFullName(), 'ANS', 50);
         //$addressLine2 = $this->formatTextValue('', 'ANS', 50);
         $zipCode = $this->formatTextValue($billingAddress->getPostcode(), 'ANS', 16);
         $city = $this->formatTextValue($billingAddress->getCity(), 'ANS', 50);
