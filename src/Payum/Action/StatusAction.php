@@ -49,6 +49,16 @@ class StatusAction implements ActionInterface, GatewayAwareInterface
         if (isset($model['notify'])) {
             $request->setModel($request->getFirstModel());
             if (self::RESPONSE_SUCCESS === $model['Reponse']) {
+                // Because Sylius creates a new Payment when a payment has failed
+                // And because Notify Token can be called multiple times until payment has been granted
+                // Remove other payments that are not completed
+                $currentPayment = $request->getFirstModel();
+                $order = $currentPayment->getOrder();
+                foreach ($order->getPayments() as $payment) {
+                    if ($payment->getId() !== $currentPayment->getId() && $payment->getState() !== PaymentInterface::STATE_COMPLETED) {
+                        $order->removePayment($payment);
+                    }
+                }
                 $request->markCaptured();
             } elseif (self::isFailureErrorCode($model['Reponse'])) {
                 $request->markFailed();
@@ -57,6 +67,7 @@ class StatusAction implements ActionInterface, GatewayAwareInterface
             } else {
                 $request->markCanceled();
             }
+            unset($model['notify']);
         } else {
             // To make Sylius display a correct message (PayumController:afterCaptureAction)
             // And because request is in state unknown
@@ -108,7 +119,7 @@ class StatusAction implements ActionInterface, GatewayAwareInterface
         return
             $request instanceof GetStatusInterface &&
             $request->getModel() instanceof \ArrayAccess
-        ;
+            ;
     }
 
     protected static function isFailureErrorCode($errorCode): bool
