@@ -32,7 +32,6 @@ class NotifyAction implements ActionInterface, GatewayAwareInterface, GenericTok
         $this->gateway->execute($httpRequest = new GetHttpRequest());
         $httpRequest->query['notify'] = true;
         $details->replace($httpRequest->query);
-        $httpRequest->query['notify'] = false;
 
         throw new HttpResponse('OK', 200);
     }
