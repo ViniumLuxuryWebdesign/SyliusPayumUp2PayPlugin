@@ -1,0 +1,8 @@
+winzou_state_machine:
+    sylius_payment:
+        callbacks:
+            after:
+                vinium_up2pay_failed_payment:
+                    on  : "fail"
+                    do  : [ '@vinium.up2pay.payment.failstatus', "fail" ]
+                    args: [ "object" ]

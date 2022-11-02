@@ -18,3 +18,10 @@ services:
         class: Vinium\SyliusPayumUp2PayPlugin\Payum\PayboxParams
         arguments: ['@sylius.context.locale']
         public: true
+
+    vinium.up2pay.payment.failstatus:
+        public: true
+        class: Vinium\SyliusPayumUp2PayPlugin\Payment\PaymentStatusFailHandler
+        arguments:
+        - '@sylius.manager.payment'
+        - '@sylius.repository.payment_security_token'

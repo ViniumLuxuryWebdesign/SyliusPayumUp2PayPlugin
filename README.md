@@ -21,6 +21,12 @@
     ```php
     Vinium\SyliusPayumUp2PayPlugin\ViniumSyliusPayumUp2PayPlugin::class => ['all' => true],
     ```
+3. Add configuration. Create file config/packages/vinium_sylius_up2pay_plugin.yaml and add following values
+
+```yaml
+imports:
+  - { resource: '@ViniumSyliusPayumUp2PayPlugin/Resources/config/config.yaml' }
+ ```
 
 ## Documentation Up2Pay officielle
 
