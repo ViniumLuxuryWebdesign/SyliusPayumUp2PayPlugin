@@ -84,9 +84,8 @@ class Api
         // Si la clé est en ASCII, On la transforme en binaire
         $binKey = pack('H*', $hmac);
         $msg = $this->stringify($fields);
-        $string = strtoupper(hash_hmac($fields[PayboxParams::PBX_HASH], $msg, $binKey));
 
-        return $string;
+        return strtoupper(hash_hmac(strtolower($fields[PayboxParams::PBX_HASH]), $msg, $binKey));
     }
 
     /**

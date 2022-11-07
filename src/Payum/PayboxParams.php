@@ -76,7 +76,7 @@ class PayboxParams
         $billingAddress = $order->getBillingAddress();
         $firstName = $this->formatTextValue($billingAddress->getFirstName(), 'ANP', 30);
         $lastName = $this->formatTextValue($billingAddress->getLastName(), 'ANP', 30);
-        $addressLine1 = $this->formatTextValue($billingAddress->getFullName(), 'ANS', 50);
+        $addressLine1 = $this->formatTextValue($billingAddress->getStreet(), 'ANS', 50);
         //$addressLine2 = $this->formatTextValue('', 'ANS', 50);
         $zipCode = $this->formatTextValue($billingAddress->getPostcode(), 'ANS', 16);
         $city = $this->formatTextValue($billingAddress->getCity(), 'ANS', 50);
@@ -127,14 +127,13 @@ class PayboxParams
 
         switch ($type) {
             default:
+            case 'ANS':
             case 'AN':
                 $value = $this->removeAccents($value);
                 break;
             case 'ANP':
                 $value = $this->removeAccents($value);
                 $value = preg_replace('/[^-. a-zA-Z0-9]/', '', $value);
-                break;
-            case 'ANS':
                 break;
             case 'N':
                 $value = preg_replace('/[^0-9.]/', '', $value);
@@ -146,6 +145,9 @@ class PayboxParams
         }
         // Remove carriage return characters
         $value = trim(preg_replace("/\r|\n/", '', $value));
+        //Remove special characters
+        $list = array_fill_keys(['&', '<', '>', '"', "'", '/'], '');
+        $value = strtr($value, $list);
         // Cut the string when needed
         if (!empty($maxLength) && is_numeric($maxLength) && $maxLength > 0) {
             if (function_exists('mb_strlen')) {
