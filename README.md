@@ -25,7 +25,7 @@
 
 ```yaml
 imports:
-  - { resource: '@ViniumSyliusPayumUp2PayPlugin/Resources/config/config.yaml' }
+  - { resource: '@ViniumSyliusPayumUp2PayPlugin/Resources/config/config.yml' }
  ```
 
 ## Documentation Up2Pay officielle
