@@ -3,5 +3,6 @@ vinium_payum_up2pay_plugin:
     identifiant: Identifier
     gateway_label: Up2Pay Etransactions
     sandbox: Sandbox ?
+    local: Local capture (when testing locally the IPN typically won't reach the endpoint, disable in prod)
     rang: Rank number
     site: Site number

@@ -39,7 +39,7 @@ class NotifyAction implements ActionInterface, GatewayAwareInterface, GenericTok
     /**
      * {@inheritdoc}
      */
-    public function supports($request)
+    public function supports($request): bool
     {
         return
             $request instanceof Notify &&

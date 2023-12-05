@@ -34,7 +34,7 @@ class ConvertPaymentAction implements ActionInterface, GatewayAwareInterface, Ge
      *
      * @param Convert $request
      */
-    public function execute($request)
+    public function execute($request): void
     {
         RequestNotSupportedException::assertSupports($this, $request);
         /** @var PaymentInterface $payment */
@@ -72,7 +72,7 @@ class ConvertPaymentAction implements ActionInterface, GatewayAwareInterface, Ge
     /**
      * {@inheritdoc}
      */
-    public function supports($request)
+    public function supports($request): bool
     {
         return
             $request instanceof Convert &&

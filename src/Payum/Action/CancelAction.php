@@ -31,7 +31,7 @@ class CancelAction implements ActionInterface, GatewayAwareInterface
     /**
      * {@inheritdoc}
      */
-    public function supports($request)
+    public function supports($request): bool
     {
         return
             $request instanceof Cancel &&

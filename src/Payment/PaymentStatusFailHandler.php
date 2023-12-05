@@ -7,13 +7,12 @@ namespace Vinium\SyliusPayumUp2PayPlugin\Payment;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Payum\Core\Model\Identity;
+use Payum\Core\Security\TokenInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Webmozart\Assert\Assert;
 
 class PaymentStatusFailHandler
 {
-
-
     private EntityManagerInterface $entityManager;
     private EntityRepository $paymentSecurityTokenRepository;
 

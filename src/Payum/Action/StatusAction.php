@@ -5,16 +5,20 @@ declare(strict_types=1);
 namespace Vinium\SyliusPayumUp2PayPlugin\Payum\Action;
 
 use Payum\Core\Action\ActionInterface;
+use Payum\Core\ApiAwareInterface;
+use Payum\Core\ApiAwareTrait;
 use Payum\Core\Request\GetStatusInterface;
 use Payum\Core\Bridge\Spl\ArrayObject;
 use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\GatewayAwareTrait;
 use Payum\Core\GatewayAwareInterface;
 use Sylius\Component\Payment\Model\PaymentInterface;
+use Vinium\SyliusPayumUp2PayPlugin\Payum\Api;
 
-class StatusAction implements ActionInterface, GatewayAwareInterface
+class StatusAction implements ApiAwareInterface, GatewayAwareInterface, ActionInterface
 {
     use GatewayAwareTrait;
+    use ApiAwareTrait;
 
     const RESPONSE_SUCCESS = '00000';
     const RESPONSE_CANCELED = '00001';
@@ -31,12 +35,17 @@ class StatusAction implements ActionInterface, GatewayAwareInterface
     const RESPONSE_FAILED_MAX = '00199';
     const RESPONSE_PENDING_VALIDATION = '99999';
 
+    public function __construct()
+    {
+        $this->apiClass = Api::class;
+    }
+
     /**
      * {@inheritdoc}
      *
      * @param GetStatusInterface $request
      */
-    public function execute($request)
+    public function execute($request): void
     {
         RequestNotSupportedException::assertSupports($this, $request);
         $model = ArrayObject::ensureArrayObject($request->getModel());
@@ -70,7 +79,7 @@ class StatusAction implements ActionInterface, GatewayAwareInterface
                     // meaning the IPN didn't reach the capture endpoint before the user return to the shop.
                     // (when testing locally the IPN typically won't reach the endpoint)
                     if (self::RESPONSE_SUCCESS === $model['Reponse']) {
-                        if (getenv('VINIUM_SYLIUS_PAYUM_UP2PAY_PLUGIN_LOCAL_CAPTURE')) {
+                        if ($this->api->isLocal()) {
                             $request->markCaptured();
                         } else {
                             $request->markPending();
@@ -104,7 +113,7 @@ class StatusAction implements ActionInterface, GatewayAwareInterface
     /**
      * {@inheritdoc}
      */
-    public function supports($request)
+    public function supports($request): bool
     {
         return
             $request instanceof GetStatusInterface &&

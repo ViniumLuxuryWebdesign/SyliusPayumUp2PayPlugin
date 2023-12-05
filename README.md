@@ -49,3 +49,5 @@ https://static.ca-moncommerce.com/documents/e-transactions_mise-en_place_des_tes
 ```
 VINIUM_SYLIUS_PAYUM_UP2PAY_PLUGIN_LOCAL_CAPTURE=1
 ```
+
+Deprecated : please use checkbox option 'local' in GatewayFactory available in payment method form via admin interface

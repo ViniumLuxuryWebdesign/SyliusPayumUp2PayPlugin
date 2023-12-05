@@ -73,6 +73,11 @@ class Api
         return $this->options['sandbox'] ? PayboxParams::SERVER_TEST : PayboxParams::SERVER_PRODUCTION;
     }
 
+    public function isLocal(): bool
+    {
+        return $this->options['local'];
+    }
+
     /**
      * @param $hmac string hmac key
      * @param $fields array fields

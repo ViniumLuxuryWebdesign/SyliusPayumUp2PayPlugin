@@ -39,6 +39,7 @@ class Up2PayGatewayFactory extends GatewayFactory
                 'hash'          => 'SHA512',
                 'retour'        => 'Mt:M;Ref:R;Auto:A;Appel:T;Abo:B;Reponse:E;Transaction:S;Pays:Y;Signature:K',
                 'sandbox'       => true,
+                'local'         => false,
                 'type_paiement' => '',
                 'type_carte'    => '',
             ];

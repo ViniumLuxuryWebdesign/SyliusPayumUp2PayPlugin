@@ -15,11 +15,16 @@ final class Up2PayGatewayConfigurationType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('sandbox', CheckboxType::class, [
+                'required' => false,
                 'label' => 'vinium_payum_up2pay_plugin.sandbox'
+            ])
+            ->add('local', CheckboxType::class, [
+                'required' => false,
+                'label' => 'vinium_payum_up2pay_plugin.local'
             ])
             ->add('hmac', TextType::class, [
                 'label' => 'vinium_payum_up2pay_plugin.hmac',
