@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Vinium\SyliusPayumUp2PayPlugin\Payum;
 
 use Sylius\Component\Core\Model\AddressInterface;
-use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Locale\Context\LocaleContextInterface;
+use League\ISO3166\ISO3166;
 
 class PayboxParams
 {
@@ -70,7 +70,7 @@ class PayboxParams
         return $this->currencies[$currency];
     }
 
-    public function setBilling(OrderInterface $order)
+    public function setBilling(OrderInterface $order): string
     {
         /** @var AddressInterface $billingAddress */
         $billingAddress = $order->getBillingAddress();
@@ -81,24 +81,27 @@ class PayboxParams
         $zipCode = $this->formatTextValue($billingAddress->getPostcode(), 'ANS', 16);
         $city = $this->formatTextValue($billingAddress->getCity(), 'ANS', 50);
         $countryCode = $billingAddress->getCountryCode() ? $billingAddress->getCountryCode() : 'FR';
-        $dataIso = (new \League\ISO3166\ISO3166)->alpha2($countryCode);
+        $phone = $this->formatTextValue($billingAddress->getPhoneNumber(), 'N', 10);
+        $prefixPhone = $this->getISDCodeFromISO2($countryCode) ?: '+33';
+        $dataIso = (new ISO3166)->alpha2($countryCode);
         //default french if not found
         $countryIso3661 = $dataIso['numeric'] ?? 250;
-
         $xml = sprintf(
-            '<?xml version="1.0" encoding="utf-8"?><Billing><Address><FirstName>%s</FirstName><LastName>%s</LastName><Address1>%s</Address1><ZipCode>%s</ZipCode><City>%s</City><CountryCode>%d</CountryCode></Address></Billing>',
+            '<?xml version="1.0" encoding="utf-8"?><Billing><Address><FirstName>%s</FirstName><LastName>%s</LastName><Address1>%s</Address1><ZipCode>%s</ZipCode><City>%s</City><CountryCode>%d</CountryCode><CountryCodeMobilePhone>%s</CountryCodeMobilePhone><MobilePhone>%s</MobilePhone></Address></Billing>',
             $firstName,
             $lastName,
             $addressLine1,
             $zipCode,
             $city,
-            $countryIso3661
+            $countryIso3661,
+            $prefixPhone,
+            $phone,
         );
 
         return $xml;
     }
 
-    public function setShoppingCart($value)
+    public function setShoppingCart($value): string
     {
         // totalQuantity must be less or equal than 99
         $totalQuantity = min($value, 99);
@@ -112,10 +115,10 @@ class PayboxParams
      *
      * @param string $value
      * @param string $type
-     * @param int $maxLength
+     * @param int|null $maxLength
      * @return string
      */
-    private function formatTextValue($value, $type, $maxLength = null)
+    private function formatTextValue(string $value, string $type, int $maxLength = 0): string
     {
         /*
         AN : Alphanumerical without special characters
@@ -124,7 +127,6 @@ class PayboxParams
         N : Numerical only
         A : Alphabetic only
         */
-
         switch ($type) {
             default:
             case 'ANS':
@@ -136,7 +138,7 @@ class PayboxParams
                 $value = preg_replace('/[^-. a-zA-Z0-9]/', '', $value);
                 break;
             case 'N':
-                $value = preg_replace('/[^0-9.]/', '', $value);
+                $value = preg_replace('/[^0-9]/', '', $value);
                 break;
             case 'A':
                 $value = $this->removeAccents($value);
@@ -149,7 +151,7 @@ class PayboxParams
         $list = array_fill_keys(['&', '<', '>', '"', "'", '/'], '');
         $value = strtr($value, $list);
         // Cut the string when needed
-        if (!empty($maxLength) && is_numeric($maxLength) && $maxLength > 0) {
+        if (!empty($maxLength)) {
             if (function_exists('mb_strlen')) {
                 if (mb_strlen($value) > $maxLength) {
                     $value = mb_substr($value, 0, $maxLength);
@@ -545,7 +547,7 @@ class PayboxParams
         return $string;
     }
 
-    private function seemsUtf8($str)
+    private function seemsUtf8($str): bool
     {
         $this->mbstringBinarySafeEncoding();
         $length = strlen($str);
@@ -573,6 +575,7 @@ class PayboxParams
                 }
             }
         }
+
         return true;
     }
 
@@ -598,6 +601,228 @@ class PayboxParams
         if ($reset && $encodings) {
             $encoding = array_pop($encodings);
             mb_internal_encoding($encoding);
+        }
+    }
+
+    private function getISDCodeFromISO2(string $iso2): ?string
+    {
+        $isdCodes = [
+            "AF" => "+93",
+            "AL" => "+355",
+            "DZ" => "+213",
+            "AS" => "+1-684",
+            "AD" => "+376",
+            "AO" => "+244",
+            "AI" => "+1-264",
+            "AQ" => "+672",
+            "AG" => "+1-268",
+            "AR" => "+54",
+            "AM" => "+374",
+            "AW" => "+297",
+            "AU" => "+61",
+            "AT" => "+43",
+            "AZ" => "+994",
+            "BS" => "+1-242",
+            "BH" => "+973",
+            "BD" => "+880",
+            "BB" => "+1-246",
+            "BY" => "+375",
+            "BE" => "+32",
+            "BZ" => "+501",
+            "BJ" => "+229",
+            "BM" => "+1-441",
+            "BT" => "+975",
+            "BO" => "+591",
+            "BA" => "+387",
+            "BW" => "+267",
+            "BR" => "+55",
+            "IO" => "+246",
+            "BN" => "+673",
+            "BG" => "+359",
+            "BF" => "+226",
+            "BI" => "+257",
+            "KH" => "+855",
+            "CM" => "+237",
+            "CA" => "+1",
+            "CV" => "+238",
+            "KY" => "+1-345",
+            "CF" => "+236",
+            "TD" => "+235",
+            "CL" => "+56",
+            "CN" => "+86",
+            "CO" => "+57",
+            "KM" => "+269",
+            "CG" => "+242",
+            "CD" => "+243",
+            "CK" => "+682",
+            "CR" => "+506",
+            "HR" => "+385",
+            "CU" => "+53",
+            "CY" => "+357",
+            "CZ" => "+420",
+            "DK" => "+45",
+            "DJ" => "+253",
+            "DM" => "+1-767",
+            "DO" => "+1-809",
+            "EC" => "+593",
+            "EG" => "+20",
+            "SV" => "+503",
+            "GQ" => "+240",
+            "ER" => "+291",
+            "EE" => "+372",
+            "ET" => "+251",
+            "FJ" => "+679",
+            "FI" => "+358",
+            "FR" => "+33",
+            "GA" => "+241",
+            "GM" => "+220",
+            "GE" => "+995",
+            "DE" => "+49",
+            "GH" => "+233",
+            "GI" => "+350",
+            "GR" => "+30",
+            "GL" => "+299",
+            "GD" => "+1-473",
+            "GU" => "+1-671",
+            "GT" => "+502",
+            "GN" => "+224",
+            "GW" => "+245",
+            "GY" => "+592",
+            "HT" => "+509",
+            "HN" => "+504",
+            "HK" => "+852",
+            "HU" => "+36",
+            "IS" => "+354",
+            "IN" => "+91",
+            "ID" => "+62",
+            "IR" => "+98",
+            "IQ" => "+964",
+            "IE" => "+353",
+            "IL" => "+972",
+            "IT" => "+39",
+            "JM" => "+1-876",
+            "JP" => "+81",
+            "JO" => "+962",
+            "KZ" => "+7",
+            "KE" => "+254",
+            "KI" => "+686",
+            "KP" => "+850",
+            "KR" => "+82",
+            "KW" => "+965",
+            "KG" => "+996",
+            "LA" => "+856",
+            "LV" => "+371",
+            "LB" => "+961",
+            "LS" => "+266",
+            "LR" => "+231",
+            "LY" => "+218",
+            "LI" => "+423",
+            "LT" => "+370",
+            "LU" => "+352",
+            "MO" => "+853",
+            "MK" => "+389",
+            "MG" => "+261",
+            "MW" => "+265",
+            "MY" => "+60",
+            "MV" => "+960",
+            "ML" => "+223",
+            "MT" => "+356",
+            "MH" => "+692",
+            "MR" => "+222",
+            "MU" => "+230",
+            "MX" => "+52",
+            "FM" => "+691",
+            "MD" => "+373",
+            "MC" => "+377",
+            "MN" => "+976",
+            "ME" => "+382",
+            "MS" => "+1-664",
+            "MA" => "+212",
+            "MZ" => "+258",
+            "MM" => "+95",
+            "NA" => "+264",
+            "NR" => "+674",
+            "NP" => "+977",
+            "NL" => "+31",
+            "NZ" => "+64",
+            "NI" => "+505",
+            "NE" => "+227",
+            "NG" => "+234",
+            "NU" => "+683",
+            "NF" => "+672",
+            "MP" => "+1-670",
+            "NO" => "+47",
+            "OM" => "+968",
+            "PK" => "+92",
+            "PW" => "+680",
+            "PA" => "+507",
+            "PG" => "+675",
+            "PY" => "+595",
+            "PE" => "+51",
+            "PH" => "+63",
+            "PL" => "+48",
+            "PT" => "+351",
+            "PR" => "+1-787",
+            "QA" => "+974",
+            "RO" => "+40",
+            "RU" => "+7",
+            "RW" => "+250",
+            "WS" => "+685",
+            "SM" => "+378",
+            "ST" => "+239",
+            "SA" => "+966",
+            "SN" => "+221",
+            "RS" => "+381",
+            "SC" => "+248",
+            "SL" => "+232",
+            "SG" => "+65",
+            "SK" => "+421",
+            "SI" => "+386",
+            "SB" => "+677",
+            "SO" => "+252",
+            "ZA" => "+27",
+            "ES" => "+34",
+            "LK" => "+94",
+            "SD" => "+249",
+            "SR" => "+597",
+            "SZ" => "+268",
+            "SE" => "+46",
+            "CH" => "+41",
+            "SY" => "+963",
+            "TW" => "+886",
+            "TJ" => "+992",
+            "TZ" => "+255",
+            "TH" => "+66",
+            "TL" => "+670",
+            "TG" => "+228",
+            "TO" => "+676",
+            "TT" => "+1-868",
+            "TN" => "+216",
+            "TR" => "+90",
+            "TM" => "+993",
+            "TV" => "+688",
+            "UG" => "+256",
+            "UA" => "+380",
+            "AE" => "+971",
+            "GB" => "+44",
+            "US" => "+1",
+            "UY" => "+598",
+            "UZ" => "+998",
+            "VU" => "+678",
+            "VA" => "+39",
+            "VE" => "+58",
+            "VN" => "+84",
+            "WF" => "+681",
+            "EH" => "+212",
+            "YE" => "+967",
+            "ZM" => "+260",
+            "ZW" => "+263",
+        ];
+        $iso2 = mb_strtoupper($iso2);
+        if (\array_key_exists($iso2, $isdCodes)) {
+            return $isdCodes[$iso2];
+        } else {
+            return null;
         }
     }
 }
