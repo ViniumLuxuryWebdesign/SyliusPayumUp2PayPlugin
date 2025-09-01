@@ -27,7 +27,32 @@ class PaymentStatusFailHandler
     public function fail(PaymentInterface $paymentFailed): void
     {
         $order = $paymentFailed->getOrder();
+
+        // Check if there's already a successful payment for this order
+        foreach ($order->getPayments() as $payment) {
+            if ($payment->getState() === PaymentInterface::STATE_COMPLETED) {
+                // There's already a successful payment, do nothing
+                return;
+            }
+        }
+        
+        // Check if the "failed" payment actually contains a success response from Up2Pay
+        $details = $paymentFailed->getDetails();
+        if (isset($details['Reponse']) && $details['Reponse'] === '00000') {
+            // This payment has a success response from Up2Pay, don't treat it as a failure
+            // This can happen when a failure notification arrives before a success notification
+            // and Sylius marks the payment as failed before the success notification is processed
+            return;
+        }
+        
         $newPayment = $order->getLastPayment(PaymentInterface::STATE_NEW);
+        
+        // If no new payment exists, don't create a duplicate
+        if (!$newPayment || $newPayment === $paymentFailed) {
+            return;
+        }
+        
+
         $newPayment->setDetails($paymentFailed->getDetails());
         $this->entityManager->flush();
         $this->updatePaymentSecurityToken($newPayment);

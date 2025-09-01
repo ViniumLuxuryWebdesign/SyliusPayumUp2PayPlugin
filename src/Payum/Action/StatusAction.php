@@ -100,7 +100,13 @@ class StatusAction implements ApiAwareInterface, GatewayAwareInterface, ActionIn
                     break;
 
                 case PaymentInterface::STATE_FAILED:
-                    $request->markFailed();
+                    // Check if the failed payment actually contains a success response
+                    // This can happen when failure notification arrives before success notification
+                    if (self::RESPONSE_SUCCESS === $model['Reponse']) {
+                        $request->markCaptured();
+                    } else {
+                        $request->markFailed();
+                    }
                     break;
 
                 default:
