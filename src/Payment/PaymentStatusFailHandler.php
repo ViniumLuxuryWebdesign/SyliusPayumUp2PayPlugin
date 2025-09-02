@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityRepository;
 use Payum\Core\Model\Identity;
 use Payum\Core\Security\TokenInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
+use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Webmozart\Assert\Assert;
 
 class PaymentStatusFailHandler
@@ -27,7 +28,39 @@ class PaymentStatusFailHandler
     public function fail(PaymentInterface $paymentFailed): void
     {
         $order = $paymentFailed->getOrder();
+
+        // Check if there's already a successful payment for this order (only for up2pay payments)
+        $up2payPayments = $order->getPayments()->filter(function (PaymentInterface $payment): bool {
+
+            /** @var PaymentMethodInterface|null $paymentMethod */
+            $paymentMethod = $payment->getMethod();
+            return $paymentMethod && $paymentMethod->getGatewayConfig()->getFactoryName() === 'up2pay';
+        });
+        
+        foreach ($up2payPayments as $payment) {
+            if ($payment->getState() === PaymentInterface::STATE_COMPLETED) {
+                // There's already a successful Up2Pay payment, do nothing
+                return;
+            }
+        }
+        
+        // Check if the "failed" payment actually contains a success response from Up2Pay
+        $details = $paymentFailed->getDetails();
+        if (isset($details['Reponse']) && $details['Reponse'] === '00000') {
+            // This payment has a success response from Up2Pay, don't treat it as a failure
+            // This can happen when a failure notification arrives before a success notification
+            // and Sylius marks the payment as failed before the success notification is processed
+            return;
+        }
+        
         $newPayment = $order->getLastPayment(PaymentInterface::STATE_NEW);
+        
+        // If no new payment exists, don't create a duplicate
+        if (!$newPayment || $newPayment === $paymentFailed) {
+            return;
+        }
+        
+
         $newPayment->setDetails($paymentFailed->getDetails());
         $this->entityManager->flush();
         $this->updatePaymentSecurityToken($newPayment);
@@ -42,7 +75,15 @@ class PaymentStatusFailHandler
         $order = $newPayment->getOrder();
         Assert::notNull($order);
 
-        foreach ($order->getPayments() as $payment) {
+        // Only process Up2Pay payments to avoid interfering with other payment methods
+        $up2payPayments = $order->getPayments()->filter(function (PaymentInterface $payment): bool {
+            
+            /** @var PaymentMethodInterface|null $paymentMethod */
+            $paymentMethod = $payment->getMethod();
+            return $paymentMethod && $paymentMethod->getGatewayConfig()->getFactoryName() === 'up2pay';
+        });
+
+        foreach ($up2payPayments as $payment) {
             $identify = new Identity($payment->getId(), get_class($payment));
             /** @var TokenInterface[] $tokens */
             $tokens = $this->paymentSecurityTokenRepository->findBy(
