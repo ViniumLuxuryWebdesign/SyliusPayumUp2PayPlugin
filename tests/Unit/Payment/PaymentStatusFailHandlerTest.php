@@ -11,6 +11,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\PaymentMethodInterface;
+use Sylius\Bundle\PayumBundle\Model\GatewayConfigInterface;
 use Vinium\SyliusPayumUp2PayPlugin\Payment\PaymentStatusFailHandler;
 
 /**
@@ -33,6 +35,9 @@ class PaymentStatusFailHandlerTest extends TestCase
     {
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $this->tokenRepository = $this->createMock(EntityRepository::class);
+        
+        // Mock the tokenRepository to return empty array by default
+        $this->tokenRepository->method('findBy')->willReturn([]);
         
         $this->handler = new PaymentStatusFailHandler(
             $this->entityManager,
@@ -287,11 +292,82 @@ class PaymentStatusFailHandlerTest extends TestCase
         $this->assertTrue(true, 'All success responses were correctly ignored');
     }
 
+    /**
+     * This ensures our filtering only affects Up2Pay payments and not other payment methods
+     */
+    public function testMultipleGatewayFactoryNames(): void
+    {
+        // Test Case 1: Order with multiple payment methods, but no Up2Pay completed payment
+        $up2payFailedPayment = $this->createMockPaymentWithGateway(PaymentInterface::STATE_FAILED, 'up2pay');
+        $stripeCompletedPayment = $this->createMockPaymentWithGateway(PaymentInterface::STATE_COMPLETED, 'stripe_checkout');
+        $paypalFailedPayment = $this->createMockPaymentWithGateway(PaymentInterface::STATE_FAILED, 'paypal_express_checkout');
+        
+        $order = $this->createMockOrder([$up2payFailedPayment, $stripeCompletedPayment, $paypalFailedPayment]);
+        $up2payFailedPayment->method('getOrder')->willReturn($order);
+        
+        $up2payFailedPayment->method('getDetails')->willReturn([
+            'Mt' => '10000',
+            'Ref' => '000001500',
+            'Reponse' => '00001', // FAILURE
+            'Transaction' => '123456789',
+            'Pays' => 'FRA'
+        ]);
+
+        // Create a new payment for the retry mechanism
+        $newUp2PayPayment = $this->createMockPaymentWithGateway(PaymentInterface::STATE_NEW, 'up2pay');
+        $newUp2PayPayment->method('getOrder')->willReturn($order);
+        $order->method('getLastPayment')->willReturn($newUp2PayPayment);
+        
+        // Even though Stripe payment is completed, Up2Pay filter should only see Up2Pay payments
+        // Since no Up2Pay payment is completed, it should process the failure
+        $this->entityManager->expects($this->once())->method('flush');
+        $this->handler->fail($up2payFailedPayment);
+        
+        // Test Case 2: Order with multiple payment methods including a completed Up2Pay payment  
+        $up2payCompletedPayment = $this->createMockPaymentWithGateway(PaymentInterface::STATE_COMPLETED, 'up2pay');
+        $up2payFailedPayment2 = $this->createMockPaymentWithGateway(PaymentInterface::STATE_FAILED, 'up2pay');
+        $stripeFailedPayment = $this->createMockPaymentWithGateway(PaymentInterface::STATE_FAILED, 'stripe_checkout');
+        
+        $order2 = $this->createMockOrder([$up2payCompletedPayment, $up2payFailedPayment2, $stripeFailedPayment]);
+        $up2payFailedPayment2->method('getOrder')->willReturn($order2);
+        
+        $up2payFailedPayment2->method('getDetails')->willReturn([
+            'Mt' => '5000',
+            'Ref' => '000001501',
+            'Reponse' => '00001',
+            'Transaction' => '123456790',
+            'Pays' => 'FRA'
+        ]);
+        
+        // Since there's already a completed Up2Pay payment, should not process
+        $this->entityManager->expects($this->never())->method('flush');
+        $this->handler->fail($up2payFailedPayment2);
+        
+        $this->assertTrue(true, 'Multiple gateway factory names handled correctly');
+    }
+
     private function createMockPayment(string $state): MockObject
+    {
+        return $this->createMockPaymentWithGateway($state, 'up2pay');
+    }
+
+    private function createMockPaymentWithGateway(string $state, string $gatewayFactoryName): MockObject
     {
         $payment = $this->createMock(PaymentInterface::class);
         $payment->method('getState')->willReturn($state);
         $payment->method('getId')->willReturn(random_int(1, 1000));
+        
+        // Create a mock PaymentMethod
+        $paymentMethod = $this->createMock(PaymentMethodInterface::class);
+        
+        // Create a mock GatewayConfig
+        $gatewayConfig = $this->createMock(GatewayConfigInterface::class);
+        $gatewayConfig->method('getFactoryName')->willReturn($gatewayFactoryName);
+        
+        // Wire everything together
+        $paymentMethod->method('getGatewayConfig')->willReturn($gatewayConfig);
+        $payment->method('getMethod')->willReturn($paymentMethod);
+        
         return $payment;
     }
 

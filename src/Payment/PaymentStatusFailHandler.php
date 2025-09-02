@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityRepository;
 use Payum\Core\Model\Identity;
 use Payum\Core\Security\TokenInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
+use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Webmozart\Assert\Assert;
 
 class PaymentStatusFailHandler
@@ -28,10 +29,17 @@ class PaymentStatusFailHandler
     {
         $order = $paymentFailed->getOrder();
 
-        // Check if there's already a successful payment for this order
-        foreach ($order->getPayments() as $payment) {
+        // Check if there's already a successful payment for this order (only for up2pay payments)
+        $up2payPayments = $order->getPayments()->filter(function (PaymentInterface $payment): bool {
+
+            /** @var PaymentMethodInterface|null $paymentMethod */
+            $paymentMethod = $payment->getMethod();
+            return $paymentMethod && $paymentMethod->getGatewayConfig()->getFactoryName() === 'up2pay';
+        });
+        
+        foreach ($up2payPayments as $payment) {
             if ($payment->getState() === PaymentInterface::STATE_COMPLETED) {
-                // There's already a successful payment, do nothing
+                // There's already a successful Up2Pay payment, do nothing
                 return;
             }
         }
@@ -67,7 +75,15 @@ class PaymentStatusFailHandler
         $order = $newPayment->getOrder();
         Assert::notNull($order);
 
-        foreach ($order->getPayments() as $payment) {
+        // Only process Up2Pay payments to avoid interfering with other payment methods
+        $up2payPayments = $order->getPayments()->filter(function (PaymentInterface $payment): bool {
+            
+            /** @var PaymentMethodInterface|null $paymentMethod */
+            $paymentMethod = $payment->getMethod();
+            return $paymentMethod && $paymentMethod->getGatewayConfig()->getFactoryName() === 'up2pay';
+        });
+
+        foreach ($up2payPayments as $payment) {
             $identify = new Identity($payment->getId(), get_class($payment));
             /** @var TokenInterface[] $tokens */
             $tokens = $this->paymentSecurityTokenRepository->findBy(
